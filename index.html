@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor contraseñas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #387080, #0072ff); /* Fondo gradiente azul calipso */
+            margin: 0;
+        }
+
+        .container {
+            background: #000000; /* Fondo negro para el panel */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .show-passwords {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            color: #d8dae3;
+            transition: color 0.3s ease;
+        }
+
+        .show-passwords:hover {
+            color: #e4e9ee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td {
+            background-color: #ffffff; /* Fondo blanco para celdas normales */
+        }
+
+        td.copy-cell {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            background-color: #3b853b; /* Fondo verde para celdas de iconos */
+        }
+
+        td.copy-cell:hover {
+            background-color: #3c4e48; /* Fondo verde oscuro al hacer hover */
+        }
+
+        .copy-icon {
+            color: #cbd678; /* Color celeste para el icono */
+            font-size: 1.5em; /* Aumenta el tamaño del icono */
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 1em;
+            color: #28a745;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Datos de Plataformas</h1>
+        <div class="show-passwords" onclick="togglePasswords()">
+            <i class="fas fa-eye" id="toggle-icon"></i>
+            <span id="toggle-text"> Mostrar contraseñas</span>
+        </div>
+        <table id="password-table">
+            <thead>
+                <tr>
+                    <th>Plataforma</th>
+                    <th>Correo</th>
+                    <th>Descripción</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Copiar Usuario</th>
+                    <th>Contraseña</th>
+                    <th>Copiar Contraseña</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas generadas dinámicamente -->
+            </tbody>
+        </table>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const platforms = [
+            {
+                plataforma: "Google Console",
+                correo: "usuario@google.com",
+                descripcion: "API Google",
+                usuario: "usuario_google",
+                contraseña: "1234-5678-ABCD-EFGH"
+            },
+            {
+                plataforma: "Amazon Web Services",
+                correo: "usuario@aws.com",
+                descripcion: "API AWS",
+                usuario: "usuario_aws",
+                contraseña: "ABCD-1234-EFGH-5678"
+            },
+            {
+                plataforma: "Microsoft Azure",
+                correo: "usuario@azure.com",
+                descripcion: "API Azure",
+                usuario: "usuario_azure",
+                contraseña: "EFGH-5678-1234-ABCD"
+            },
+            {
+                plataforma: "IBM Cloud",
+                correo: "usuario@ibm.com",
+                descripcion: "API IBM",
+                usuario: "usuario_ibm",
+                contraseña: "5678-ABCD-1234-EFGH"
+            },
+            {
+                plataforma: "Oracle Cloud",
+                correo: "usuario@oracle.com",
+                descripcion: "API Oracle",
+                usuario: "usuario_oracle",
+                contraseña: "WXYZ-5678-ABCD-1234"
+            },
+            {
+                plataforma: "Salesforce",
+                correo: "usuario@salesforce.com",
+                descripcion: "API Salesforce",
+                usuario: "usuario_salesforce",
+                contraseña: "QRST-1234-ABCD-EFGH"
+            }
+        ];
+
+
+        let showPasswords = false;
+
+        function loadTable() {
+            const tableBody = document.getElementById('password-table').querySelector('tbody');
+            tableBody.innerHTML = '';
+
+            platforms.forEach((item) => {
+                const row = document.createElement('tr');
+
+                const cellPlatform = document.createElement('td');
+                cellPlatform.textContent = item.plataforma;
+                row.appendChild(cellPlatform);
+
+                const cellEmail = document.createElement('td');
+                cellEmail.textContent = item.correo;
+                row.appendChild(cellEmail);
+
+                const cellDescription = document.createElement('td');
+                cellDescription.textContent = item.descripcion;
+                row.appendChild(cellDescription);
+
+                const cellUsername = document.createElement('td');
+                cellUsername.textContent = item.usuario;
+                row.appendChild(cellUsername);
+
+                const cellCopyUser = document.createElement('td');
+                cellCopyUser.classList.add('copy-cell');
+                cellCopyUser.innerHTML = `<i class="fas fa-copy copy-icon"></i>`;
+                cellCopyUser.onclick = () => copyToClipboard(item.usuario, `nombre de usuario de ${item.plataforma}`);
+                row.appendChild(cellCopyUser);
+
+                const cellPassword = document.createElement('td');
+                cellPassword.innerHTML = `<span class="password">${'*'.repeat(item.contraseña.length)}</span>`;
+                row.appendChild(cellPassword);
+
+                const cellCopyPassword = document.createElement('td');
+                cellCopyPassword.classList.add('copy-cell');
+                cellCopyPassword.innerHTML = `<i class="fas fa-copy copy-icon"></i>`;
+                cellCopyPassword.onclick = () => copyToClipboard(item.contraseña, `contraseña de ${item.plataforma}`);
+                row.appendChild(cellCopyPassword);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function togglePasswords() {
+            showPasswords = !showPasswords;
+            const passwords = document.querySelectorAll('.password');
+            passwords.forEach((password, index) => {
+                password.textContent = showPasswords ? platforms[index].contraseña : '*'.repeat(platforms[index].contraseña.length);
+            });
+            document.getElementById('toggle-icon').classList.toggle('fa-eye-slash');
+            document.getElementById('toggle-text').textContent = showPasswords ? ' Ocultar contraseñas' : ' Mostrar contraseñas';
+        }
+
+        function copyToClipboard(text, description) {
+            navigator.clipboard.writeText(text).then(() => {
+                const message = document.getElementById('message');
+                message.textContent = `${description} copiada al portapapeles!`;
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 2000);
+            }).catch(err => {
+                console.error(`Error al copiar ${description}: `, err);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTable);
+    </script>
+</body>
+</html>
